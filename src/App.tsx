@@ -37,7 +37,7 @@ function ScrollToTop() {
 function Home() {
   const [formState, setFormState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [formError, setFormError] = useState('')
-  useEffect(() => { const lenis = new Lenis({ lerp: .08 }); let id: number; const tick = (t:number) => { lenis.raf(t); id=requestAnimationFrame(tick) }; id=requestAnimationFrame(tick); return () => { cancelAnimationFrame(id); lenis.destroy() } }, [])
+  useEffect(() => { const lenis = new Lenis({ lerp: .15 }); let id: number; const tick = (t:number) => { lenis.raf(t); id=requestAnimationFrame(tick) }; id=requestAnimationFrame(tick); return () => { cancelAnimationFrame(id); lenis.destroy() } }, [])
   const sendMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setFormState('sending'); setFormError('')
     const form = event.currentTarget
