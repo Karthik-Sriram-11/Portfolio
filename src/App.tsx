@@ -40,10 +40,11 @@ function Home() {
   useEffect(() => { const lenis = new Lenis({ lerp: .08 }); let id: number; const tick = (t:number) => { lenis.raf(t); id=requestAnimationFrame(tick) }; id=requestAnimationFrame(tick); return () => { cancelAnimationFrame(id); lenis.destroy() } }, [])
   const sendMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setFormState('sending'); setFormError('')
+    const form = event.currentTarget
     const accessKey = import.meta.env.VITE_WEB3FORMS_KEY
     if (!accessKey) { setFormError('Contact form setup is pending. Please email me directly.'); setFormState('error'); return }
-    const data = new FormData(event.currentTarget); data.append('access_key', accessKey); data.append('subject', 'New portfolio enquiry for Karthikeya Sriram'); data.append('from_name', 'Karthikeya Sriram Portfolio')
-    try { const response = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }); const result = await response.json(); if (!result.success) throw new Error(result.message || 'Message failed to send.'); setFormState('sent'); event.currentTarget.reset() } catch (error) { setFormError(error instanceof Error ? error.message : 'Message failed to send.'); setFormState('error') }
+    const data = new FormData(form); data.append('access_key', accessKey); data.append('subject', 'New portfolio enquiry for Karthikeya Sriram'); data.append('from_name', 'Karthikeya Sriram Portfolio')
+    try { const response = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }); const result = await response.json(); if (!result.success) throw new Error(result.message || 'Message failed to send.'); setFormState('sent'); form.reset() } catch (error) { setFormError(error instanceof Error ? error.message : 'Message failed to send.'); setFormState('error') }
   }
   return <>
     <Hero />
