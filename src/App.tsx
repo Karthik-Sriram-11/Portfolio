@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import Lenis from 'lenis'
@@ -27,6 +27,7 @@ const commandOutput: Record<string, () => string[]> = {
     'experience — view work summary',
     'education — view education summary',
     'currently — current focus areas',
+    'basketball — toggle basketball mode',
     'clear — clear the terminal'
   ],
   whoami: () => ['Karthik Sriram', 'Full Stack Developer', 'Computer Science Student', 'Hackathon Enthusiast'],
@@ -141,7 +142,7 @@ function Home({ onOpenTerminal, easterUnlocked, easterMode }: { onOpenTerminal: 
   </>
 }
 
-function Hero({ onOpenTerminal, easterUnlocked, easterMode }: { onOpenTerminal: () => void; easterUnlocked: boolean; easterMode: boolean }) {
+function Hero({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { onOpenTerminal: () => void; easterUnlocked: boolean; easterMode: boolean; onAvatarClick: () => void }) {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 90, damping: 20 })
   const [spotlight, setSpotlight] = useState({ x: '50%', y: '50%' })
@@ -186,7 +187,7 @@ function Hero({ onOpenTerminal, easterUnlocked, easterMode }: { onOpenTerminal: 
         </div>
         <motion.div className="hero-profile-card" whileHover={{ y: -8, boxShadow: '0 32px 84px rgba(20,40,90,.24)' }} transition={{ type: 'spring', stiffness: 160, damping: 18 }}>
           <div className="profile-border">
-            <img className="profile-photo" src="/profile.jpeg" alt="Karthikeya Sriram" onDoubleClick={onOpenTerminal} />
+            <img className="profile-photo" src="/profile.jpeg" alt="Karthikeya Sriram" onDoubleClick={onOpenTerminal} onClick={onAvatarClick} />
           </div>
           <div className="profile-details">
             <span className="status-pill">B.Tech CSE • Year 3</span>
@@ -204,7 +205,7 @@ function Hero({ onOpenTerminal, easterUnlocked, easterMode }: { onOpenTerminal: 
   </header>
 }
 
-function TerminalOverlay({ open, onClose, easterUnlocked, easterMode, setEasterMode, unlockSecret }: { open: boolean; onClose: () => void; easterUnlocked: boolean; easterMode: boolean; setEasterMode: React.Dispatch<React.SetStateAction<boolean>>; unlockSecret: () => void }) {
+function TerminalOverlay({ open, onClose, easterUnlocked, easterMode, setEasterMode, basketballMode, setBasketballMode, unlockSecret }: { open: boolean; onClose: () => void; easterUnlocked: boolean; easterMode: boolean; setEasterMode: React.Dispatch<React.SetStateAction<boolean>>; basketballMode: boolean; setBasketballMode: React.Dispatch<React.SetStateAction<boolean>>; unlockSecret: () => void }) {
   const [history, setHistory] = useState<{ value: string; output: string[] }[]>([])
   const [input, setInput] = useState('')
   const [selected, setSelected] = useState(-1)
@@ -255,7 +256,10 @@ function TerminalOverlay({ open, onClose, easterUnlocked, easterMode, setEasterM
         output = enable ? ['Easter mode enabled.', 'Enjoy the secret visual layer.'] : ['Easter mode disabled.', 'Hidden mode is now quiet.']
       }
     } else if (trimmed === 'status') {
-      output = easterUnlocked ? [`Easter unlocked: yes`, `Hidden mode: ${easterMode ? 'enabled' : 'disabled'}`, 'Type secret for hidden commands.'] : ['Command not found. Try help.']
+      output = easterUnlocked ? [`Easter unlocked: yes`, `Hidden mode: ${easterMode ? 'enabled' : 'disabled'}`, `Basketball mode: ${basketballMode ? 'on' : 'off'}`] : ['Command not found. Try help.']
+    } else if (trimmed === 'basketball') {
+      setBasketballMode(prev => !prev)
+      output = basketballMode ? ['Basketball mode disabled.'] : ['Basketball mode enabled.']
     } else {
       output = commandOutput[trimmed]?.() ?? ['Command not found. Try help.']
     }
@@ -318,9 +322,12 @@ export default function App() {
   const location = useLocation()
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [konamiActive, setKonamiActive] = useState(false)
+  const [basketballMode, setBasketballMode] = useLocalStorageState('portfolio.basketballMode', false)
   const [easterUnlocked, setEasterUnlocked] = useLocalStorageState('portfolio.easterUnlocked', false)
   const [easterMode, setEasterMode] = useLocalStorageState('portfolio.easterMode', false)
   const [toast, setToast] = useState<string | null>(null)
+  const [avatarClicks, setAvatarClicks] = useState(0)
+  const basketballParticles = useMemo(() => Array.from({ length: 10 }, (_, i) => ({ left: `${8 + (i * 13) % 78}%`, top: `${12 + (i * 9) % 76}%`, size: 18 + (i % 4) * 4, delay: `${(i * 0.45) % 2.1}s` })), [])
 
   const unlockSecret = () => {
     if (!easterUnlocked) {
@@ -336,6 +343,25 @@ export default function App() {
     const timeout = window.setTimeout(() => setToast(null), 4200)
     return () => window.clearTimeout(timeout)
   }, [toast])
+
+  useEffect(() => {
+    document.body.classList.toggle('basketball-active', basketballMode)
+  }, [basketballMode])
+
+  const handleAvatarClick = () => {
+    setAvatarClicks(prev => {
+      const next = prev + 1
+      if (next >= 5) {
+        setBasketballMode(prevMode => {
+          const nextMode = !prevMode
+          setToast(nextMode ? 'Basketball mode enabled.' : 'Basketball mode disabled.')
+          return nextMode
+        })
+        return 0
+      }
+      return next
+    })
+  }
 
   useEffect(() => {
     const sequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']
@@ -387,10 +413,12 @@ export default function App() {
     <Nav />
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home onOpenTerminal={() => setTerminalOpen(true)} easterUnlocked={easterUnlocked} easterMode={easterMode} />} />
+        <Route path="/" element={<Home onOpenTerminal={() => setTerminalOpen(true)} easterUnlocked={easterUnlocked} easterMode={easterMode} onAvatarClick={handleAvatarClick} />} />
         <Route path="/work/:slug" element={<CaseStudy />} />
       </Routes>
     </AnimatePresence>
-    <TerminalOverlay open={terminalOpen} onClose={() => setTerminalOpen(false)} easterUnlocked={easterUnlocked} easterMode={easterMode} setEasterMode={setEasterMode} unlockSecret={unlockSecret} />
+    {basketballMode && <div className="basketball-layer" aria-hidden="true">{basketballParticles.map((particle, index) => <span key={index} className="basketball-particle" style={{ left: particle.left, top: particle.top, width: particle.size, height: particle.size, animationDelay: particle.delay }} />)}</div>}
+    {basketballMode && <div className="basketball-scoreboard" aria-hidden="true"><div className="scoreboard-title">🏀 Basketball mode</div><span><strong>Team KS</strong><strong>24</strong></span><span><strong>Opponents</strong><strong>12</strong></span><span className="scoreboard-note">Click avatar 5 times again or type basketball to toggle.</span></div>}
+    <TerminalOverlay open={terminalOpen} onClose={() => setTerminalOpen(false)} easterUnlocked={easterUnlocked} easterMode={easterMode} basketballMode={basketballMode} setBasketballMode={setBasketballMode} setEasterMode={setEasterMode} unlockSecret={unlockSecret} />
   </>
 }
