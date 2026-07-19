@@ -123,7 +123,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const scaleX = useSpring(scrollYProgress, { stiffness: 90, damping: 20 })
   const [spotlight, setSpotlight] = useState({ x: '50%', y: '50%' })
 
-  const scrollToCraft = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const scrollToCraft = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     document.querySelector('#craft')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -151,7 +151,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
         <div className="hero-left">
           <p className="hero-intro">I’m Karthikeya Sriram. I build premium developer experiences, lead hackathon-focused engineering, and pursue product design that feels confident without being loud.</p>
           <div className="hero-cta">
-            <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="#craft" onClick={scrollToCraft} className="button primary">View Projects <ArrowDownRight/></motion.a>
+            <motion.button whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} type="button" onClick={scrollToCraft} className="button primary">View Projects <ArrowDownRight/></motion.button>
             <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noreferrer" download="Karthikeya_Sriram_Resume.pdf" className="button secondary"><Download/> Download Resume</motion.a>
           </div>
         </div>
