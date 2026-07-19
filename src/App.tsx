@@ -166,6 +166,11 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           </div>
           <div className="profile-details">
             <span className="status-pill">B.Tech CSE • Year 3</span>
+            <div className="hero-status-card hero-status-mobile">
+              <div className="hero-status-row"><span>Live</span><LiveTime/></div>
+              <div className="hero-status-row"><span>Location</span><strong>India</strong></div>
+              <div className="hero-status-row"><span>Availability</span><strong>Open for internships</strong></div>
+            </div>
             <p>Open for internships and product-focused roles. Double-click my photo to unlock a hidden terminal.</p>
           </div>
         </motion.div>

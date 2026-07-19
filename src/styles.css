@@ -18,10 +18,11 @@
 .hero-status-row{display:flex;justify-content:space-between;gap:14px;align-items:center;}
 .hero-status-row span{font:600 11px 'DM Mono';text-transform:uppercase;letter-spacing:.18em;color:#9ea0b2;}
 .hero-status-row strong{font-size:1rem;line-height:1.5;color:#fff;}
+.hero-status-mobile{display:none;}
 .hero-cta{display:flex;gap:18px;flex-wrap:wrap;}
 .button{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;border-radius:999px;font-weight:700;border:1px solid transparent;transition:all .28s ease,transform .22s ease;}
 .hero-profile-card{position:relative;z-index:1;}
-@media(max-width:900px){.hero-status-card{padding:22px;max-width:100%;min-height:auto;}}
+@media(max-width:900px){.hero-status-card{padding:22px;max-width:100%;min-height:auto;}.hero-status-mobile{display:block;}}
 .hero-meta{position:relative;z-index:1;display:flex;gap:18px;align-items:center;justify-content:flex-start;margin-top:20px;font:500 12px 'DM Mono';color:#c9c8cf;}
 .hero-atmosphere,.hero-grid-lines{pointer-events:none;}
 .terminal-window{max-height:88vh;overflow:hidden;}
