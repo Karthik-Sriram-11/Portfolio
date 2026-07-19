@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import Lenis from 'lenis'
@@ -27,7 +27,6 @@ const commandOutput: Record<string, () => string[]> = {
     'experience — view work summary',
     'education — view education summary',
     'currently — current focus areas',
-    'basketball — toggle basketball mode',
     'clear — clear the terminal'
   ],
   whoami: () => ['Karthik Sriram', 'Full Stack Developer', 'Computer Science Student', 'Hackathon Enthusiast'],
@@ -69,36 +68,13 @@ function LiveTime() {
   return <b>IST — {time || '—'}</b>
 }
 
-function useLocalStorageState<T>(key: string, defaultValue: T) {
-  const [state, setState] = useState<T>(() => {
-    if (typeof window === 'undefined') return defaultValue
-    try {
-      const stored = window.localStorage.getItem(key)
-      return stored ? JSON.parse(stored) : defaultValue
-    } catch {
-      return defaultValue
-    }
-  })
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    try {
-      window.localStorage.setItem(key, JSON.stringify(state))
-    } catch {
-      // ignore storage write errors
-    }
-  }, [key, state])
-
-  return [state, setState] as const
-}
-
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
   return null
 }
 
-function Home({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { onOpenTerminal: () => void; easterUnlocked: boolean; easterMode: boolean; onAvatarClick: () => void }) {
+function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const [formState, setFormState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [formError, setFormError] = useState('')
   useEffect(() => { const lenis = new Lenis({ lerp: .15 }); let id: number; const tick = (t:number) => { lenis.raf(t); id=requestAnimationFrame(tick) }; id=requestAnimationFrame(tick); return () => { cancelAnimationFrame(id); lenis.destroy() } }, [])
@@ -111,7 +87,7 @@ function Home({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { o
     try { const response = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }); const result = await response.json(); if (!result.success) throw new Error(result.message || 'Message failed to send.'); setFormState('sent'); form.reset() } catch (error) { setFormError(error instanceof Error ? error.message : 'Message failed to send.'); setFormState('error') }
   }
   return <>
-    <Hero onOpenTerminal={onOpenTerminal} easterUnlocked={easterUnlocked} easterMode={easterMode} onAvatarClick={onAvatarClick} />
+    <Hero onOpenTerminal={onOpenTerminal} />
     <main>
       <section id="journey" className="section journey"><motion.div {...reveal} className="eyebrow accent">THE PATH TAKEN</motion.div><motion.h2 {...reveal}>Journey</motion.h2><div className="journey-list">{[['2026 — PRESENT','B.Tech CSE • 3rd Year','Deep in the internship hunt. Shipping side projects and studying distributed systems, AI, and cloud-native architecture.'],['2025','Hackathons & Full-Stack Focus','Built production-minded projects under pressure, including a secure medical records platform and a competitive coding arena.'],['2025','Into the MERN Stack','Went from HTML/CSS tinkering to production-grade React, Node, Express, and MongoDB. First full-stack apps shipped.'],['2024','First Line of Code','Wrote my first program. Fell in love with the loop of thinking → building → shipping. Never looked back.']].map(([year,title,copy],i)=><motion.article {...reveal} className={`journey-entry ${i===0?'current':''}`} key={title}><span className="dot"></span><div><small>{year}</small><h3>{title}</h3><p>{copy}</p></div></motion.article>)}</div></section>
       <section id="experience" className="section experience">
@@ -142,7 +118,7 @@ function Home({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { o
   </>
 }
 
-function Hero({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { onOpenTerminal: () => void; easterUnlocked: boolean; easterMode: boolean; onAvatarClick: () => void }) {
+function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 90, damping: 20 })
   const [spotlight, setSpotlight] = useState({ x: '50%', y: '50%' })
@@ -175,7 +151,6 @@ function Hero({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { o
           <div className="hero-status-row"><span>Availability</span><strong>Open for internships</strong></div>
         </div>
         <p className="hero-subline">I craft scalable web experiences, ship production-ready applications, and explore AI workflows while keeping design thoughtful and accessible.</p>
-        {easterMode && <div className="hero-secret-note active"><Sparkles aria-hidden="true" />Hidden mode engaged. Explore the secret commands in the terminal.</div>}
       </motion.div>
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
         <div className="hero-left">
@@ -187,7 +162,7 @@ function Hero({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { o
         </div>
         <motion.div className="hero-profile-card" whileHover={{ y: -8, boxShadow: '0 32px 84px rgba(20,40,90,.24)' }} transition={{ type: 'spring', stiffness: 160, damping: 18 }}>
           <div className="profile-border">
-            <img className="profile-photo" src="/profile.jpeg" alt="Karthikeya Sriram" onDoubleClick={onOpenTerminal} onClick={onAvatarClick} />
+            <img className="profile-photo" src="/profile.jpeg" alt="Karthikeya Sriram" onDoubleClick={onOpenTerminal} />
           </div>
           <div className="profile-details">
             <span className="status-pill">B.Tech CSE • Year 3</span>
@@ -205,7 +180,7 @@ function Hero({ onOpenTerminal, easterUnlocked, easterMode, onAvatarClick }: { o
   </header>
 }
 
-function TerminalOverlay({ open, onClose, easterUnlocked, easterMode, setEasterMode, basketballMode, setBasketballMode, unlockSecret }: { open: boolean; onClose: () => void; easterUnlocked: boolean; easterMode: boolean; setEasterMode: React.Dispatch<React.SetStateAction<boolean>>; basketballMode: boolean; setBasketballMode: React.Dispatch<React.SetStateAction<boolean>>; unlockSecret: () => void }) {
+function TerminalOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [history, setHistory] = useState<{ value: string; output: string[] }[]>([])
   const [input, setInput] = useState('')
   const [selected, setSelected] = useState(-1)
@@ -238,37 +213,16 @@ function TerminalOverlay({ open, onClose, easterUnlocked, easterMode, setEasterM
       setInput('')
       return
     }
-
-    let output: string[]
     if (trimmed === 'sudo hire me') {
-      output = ['Permission granted.', 'Opening internship opportunities...']
-    } else if (trimmed === 'unlock' || trimmed === 'unlock secret') {
-      unlockSecret()
-      output = ['Secret system initialized.', 'Type secret to reveal hidden commands.']
-    } else if (trimmed === 'secret') {
-      output = easterUnlocked ? ['Hidden commands:', '• easter on', '• easter off', '• status', '• basketball', '• unlock'] : ['Command not found. Try help.']
-    } else if (trimmed === 'easter on' || trimmed === 'easter off') {
-      if (!easterUnlocked) {
-        output = ['Command not found. Try help.']
-      } else {
-        const enable = trimmed === 'easter on'
-        setEasterMode(enable)
-        output = enable ? ['Easter mode enabled.', 'Enjoy the secret visual layer.'] : ['Easter mode disabled.', 'Hidden mode is now quiet.']
-      }
-    } else if (trimmed === 'status') {
-      output = easterUnlocked ? [`Easter unlocked: yes`, `Hidden mode: ${easterMode ? 'enabled' : 'disabled'}`, `Basketball mode: ${basketballMode ? 'on' : 'off'}`] : ['Command not found. Try help.']
-    } else if (trimmed === 'basketball') {
-      setBasketballMode(prev => !prev)
-      output = basketballMode ? ['Basketball mode disabled.'] : ['Basketball mode enabled.']
-    } else {
-      output = commandOutput[trimmed]?.() ?? ['Command not found. Try help.']
+      setHistory(prev => [...prev, { value: command, output: ['Permission granted.', 'Opening internship opportunities...'] }])
+      setInput('')
+      return
     }
-
     if (trimmed === 'matrix') {
       setMatrixMode(true)
     }
-
-    setHistory(prev => [...prev, { value: command, output }])
+    const handler = commandOutput[trimmed] ?? (() => ['Command not found. Try help.'])
+    setHistory(prev => [...prev, { value: command, output: handler() }])
     setInput('')
   }
 
@@ -322,46 +276,6 @@ export default function App() {
   const location = useLocation()
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [konamiActive, setKonamiActive] = useState(false)
-  const [basketballMode, setBasketballMode] = useLocalStorageState('portfolio.basketballMode', false)
-  const [easterUnlocked, setEasterUnlocked] = useLocalStorageState('portfolio.easterUnlocked', false)
-  const [easterMode, setEasterMode] = useLocalStorageState('portfolio.easterMode', false)
-  const [toast, setToast] = useState<string | null>(null)
-  const [avatarClicks, setAvatarClicks] = useState(0)
-  const basketballParticles = useMemo(() => Array.from({ length: 10 }, (_, i) => ({ left: `${8 + (i * 13) % 78}%`, top: `${12 + (i * 9) % 76}%`, size: 18 + (i % 4) * 4, delay: `${(i * 0.45) % 2.1}s` })), [])
-
-  const unlockSecret = () => {
-    if (!easterUnlocked) {
-      setEasterUnlocked(true)
-      setToast('Secret unlocked! Type secret in the terminal.')
-      return
-    }
-    setToast('Secret mode is already unlocked.')
-  }
-
-  useEffect(() => {
-    if (!toast) return
-    const timeout = window.setTimeout(() => setToast(null), 4200)
-    return () => window.clearTimeout(timeout)
-  }, [toast])
-
-  useEffect(() => {
-    document.body.classList.toggle('basketball-active', basketballMode)
-  }, [basketballMode])
-
-  const handleAvatarClick = () => {
-    setAvatarClicks(prev => {
-      const next = prev + 1
-      if (next >= 5) {
-        setBasketballMode(prevMode => {
-          const nextMode = !prevMode
-          setToast(nextMode ? 'Basketball mode enabled.' : 'Basketball mode disabled.')
-          return nextMode
-        })
-        return 0
-      }
-      return next
-    })
-  }
 
   useEffect(() => {
     const sequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']
@@ -375,7 +289,6 @@ export default function App() {
         position += 1
         if (position === sequence.length) {
           setKonamiActive(true)
-          unlockSecret()
           position = 0
         }
       } else {
@@ -384,7 +297,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [easterUnlocked])
+  }, [])
 
   useEffect(() => {
     if (!konamiActive) return
@@ -406,19 +319,15 @@ export default function App() {
   }, [])
 
   return <>
-    {easterMode && <div className="hidden-mode-layer" aria-hidden="true" />}
     {konamiActive && <div className="confetti-layer" aria-hidden="true" />}
-    {toast && <div className="easter-toast" role="status" aria-live="polite">{toast}</div>}
     <ScrollToTop />
     <Nav />
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home onOpenTerminal={() => setTerminalOpen(true)} easterUnlocked={easterUnlocked} easterMode={easterMode} onAvatarClick={handleAvatarClick} />} />
+        <Route path="/" element={<Home onOpenTerminal={() => setTerminalOpen(true)} />} />
         <Route path="/work/:slug" element={<CaseStudy />} />
       </Routes>
     </AnimatePresence>
-    {basketballMode && <div className="basketball-layer" aria-hidden="true">{basketballParticles.map((particle, index) => <span key={index} className="basketball-particle" style={{ left: particle.left, top: particle.top, width: particle.size, height: particle.size, animationDelay: particle.delay }} />)}</div>}
-    {basketballMode && <div className="basketball-scoreboard" aria-hidden="true"><div className="scoreboard-title">🏀 Basketball mode</div><span><strong>Team KS</strong><strong>24</strong></span><span><strong>Opponents</strong><strong>12</strong></span><span className="scoreboard-note">Click avatar 5 times again or type basketball to toggle.</span></div>}
-    <TerminalOverlay open={terminalOpen} onClose={() => setTerminalOpen(false)} easterUnlocked={easterUnlocked} easterMode={easterMode} basketballMode={basketballMode} setBasketballMode={setBasketballMode} setEasterMode={setEasterMode} unlockSecret={unlockSecret} />
+    <TerminalOverlay open={terminalOpen} onClose={() => setTerminalOpen(false)} />
   </>
 }
