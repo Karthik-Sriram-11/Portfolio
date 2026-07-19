@@ -145,6 +145,11 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
         <span className="eyebrow accent">Premium engineering for product teams</span>
         <h1>Karthikeya Sriram</h1>
         <p className="hero-tagline">Building software that solves real-world problems.</p>
+        <div className="hero-status-card hero-status-left">
+          <div className="hero-status-row"><span>Live</span><LiveTime/></div>
+          <div className="hero-status-row"><span>Location</span><strong>India</strong></div>
+          <div className="hero-status-row"><span>Availability</span><strong>Open for internships</strong></div>
+        </div>
         <p className="hero-subline">I craft scalable web experiences, ship production-ready applications, and explore AI workflows while keeping design thoughtful and accessible.</p>
       </motion.div>
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
@@ -160,12 +165,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             <img className="profile-photo" src="/profile.jpeg" alt="Karthikeya Sriram" onDoubleClick={onOpenTerminal} />
           </div>
           <div className="profile-details">
-            <div className="hero-status-card">
-              <span className="status-pill">B.Tech CSE • Year 3</span>
-              <div className="hero-status-row"><span>Live</span><LiveTime/></div>
-              <div className="hero-status-row"><span>Location</span><strong>India</strong></div>
-              <div className="hero-status-row"><span>Availability</span><strong>Open for internships</strong></div>
-            </div>
+            <span className="status-pill">B.Tech CSE • Year 3</span>
             <p>Open for internships and product-focused roles. Double-click my photo to unlock a hidden terminal.</p>
           </div>
         </motion.div>
