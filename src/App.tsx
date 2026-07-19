@@ -246,7 +246,7 @@ function TerminalOverlay({ open, onClose, easterUnlocked, easterMode, setEasterM
       unlockSecret()
       output = ['Secret system initialized.', 'Type secret to reveal hidden commands.']
     } else if (trimmed === 'secret') {
-      output = easterUnlocked ? ['Hidden commands:', '• easter on', '• easter off', '• status', '• unlock'] : ['Command not found. Try help.']
+      output = easterUnlocked ? ['Hidden commands:', '• easter on', '• easter off', '• status', '• basketball', '• unlock'] : ['Command not found. Try help.']
     } else if (trimmed === 'easter on' || trimmed === 'easter off') {
       if (!easterUnlocked) {
         output = ['Command not found. Try help.']
