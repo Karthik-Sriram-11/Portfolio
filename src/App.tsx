@@ -142,15 +142,15 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
     </div>
     <div className="hero-inner">
       <motion.div className="hero-copy" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, ease: 'easeOut' }}>
-        <span className="eyebrow accent">Computer Science student & Full Stack Developer</span>
+        <span className="eyebrow accent">Premium engineering for product teams</span>
         <h1>Karthikeya Sriram</h1>
-        <p className="hero-tagline">I’m Karthikeya Sriram, a Computer Science student and Full Stack Developer who enjoys building products that solve real-world problems.</p>
+        <p className="hero-tagline">Building software that solves real-world problems.</p>
         <div className="hero-status-card hero-status-left">
           <div className="hero-status-row"><span>Live</span><LiveTime/></div>
           <div className="hero-status-row"><span>Location</span><strong>India</strong></div>
           <div className="hero-status-row"><span>Availability</span><strong>Open for internships</strong></div>
         </div>
-        <p className="hero-subline">From hackathons to full-stack applications, I love turning ideas into polished software while continuously learning modern technologies.</p>
+        <p className="hero-subline">I craft scalable web experiences, ship production-ready applications, and explore AI workflows while keeping design thoughtful and accessible.</p>
       </motion.div>
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
         <div className="hero-left">
