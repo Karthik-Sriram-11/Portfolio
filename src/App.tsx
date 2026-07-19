@@ -174,7 +174,7 @@ function Hero({ onOpenTerminal, easterUnlocked, easterMode }: { onOpenTerminal: 
           <div className="hero-status-row"><span>Availability</span><strong>Open for internships</strong></div>
         </div>
         <p className="hero-subline">I craft scalable web experiences, ship production-ready applications, and explore AI workflows while keeping design thoughtful and accessible.</p>
-        {easterUnlocked && <div className={"hero-secret-note" + (easterMode ? ' active' : '')}><Sparkles aria-hidden="true" />{easterMode ? 'Hidden mode engaged. Explore the secret commands in the terminal.' : 'Hidden mode unlocked. Type secret in the terminal.'}</div>}
+        {easterMode && <div className="hero-secret-note active"><Sparkles aria-hidden="true" />Hidden mode engaged. Explore the secret commands in the terminal.</div>}
       </motion.div>
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
         <div className="hero-left">
