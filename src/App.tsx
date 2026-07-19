@@ -150,6 +150,20 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
         <div className="hero-left">
           <p className="hero-intro">I’m Karthikeya Sriram. I build premium developer experiences, lead hackathon-focused engineering, and pursue product design that feels confident without being loud.</p>
+          <div className="hero-status">
+            <div>
+              <span>Live</span>
+              <LiveTime/>
+            </div>
+            <div>
+              <span>Location</span>
+              <strong>India</strong>
+            </div>
+            <div>
+              <span>Availability</span>
+              <strong>Open for internships</strong>
+            </div>
+          </div>
           <div className="hero-cta">
             <motion.button whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} type="button" onClick={scrollToCraft} className="button primary">View Projects <ArrowDownRight/></motion.button>
             <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="button secondary"><ExternalLink/> View Resume</motion.a>
