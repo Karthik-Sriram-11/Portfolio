@@ -121,15 +121,12 @@ function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
 function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 90, damping: 20 })
-  const [phraseIndex, setPhraseIndex] = useState(0)
   const [spotlight, setSpotlight] = useState({ x: '50%', y: '50%' })
-  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  useEffect(() => {
-    if (prefersReducedMotion) return
-    const interval = window.setInterval(() => setPhraseIndex(prev => (prev + 1) % heroPhrases.length), 2800)
-    return () => window.clearInterval(interval)
-  }, [prefersReducedMotion])
+  const scrollToCraft = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    document.querySelector('#craft')?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   return <header id="home" className="hero" onMouseMove={e => {
     const x = (e.clientX / window.innerWidth) * 100
@@ -146,21 +143,16 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
     <div className="hero-inner">
       <motion.div className="hero-copy" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, ease: 'easeOut' }}>
         <span className="eyebrow accent">Premium engineering for product teams</span>
-        <h1>Building software that solves real-world problems.</h1>
+        <h1>Karthikeya Sriram</h1>
+        <p className="hero-tagline">Building software that solves real-world problems.</p>
         <p className="hero-subline">I craft scalable web experiences, ship production-ready applications, and explore AI workflows while keeping design thoughtful and accessible.</p>
-        <div className="hero-title-cycle" aria-live="polite">
-          <span>{heroPhrases[phraseIndex]}</span>
-        </div>
       </motion.div>
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
         <div className="hero-left">
           <p className="hero-intro">I’m Karthikeya Sriram. I build premium developer experiences, lead hackathon-focused engineering, and pursue product design that feels confident without being loud.</p>
           <div className="hero-cta">
-            <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="#craft" className="button primary">View Projects <ArrowDownRight/></motion.a>
-            <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noreferrer" className="button secondary"><Download/> Download Resume</motion.a>
-          </div>
-          <div className="hero-stats">
-            {heroStats.map(stat => <motion.div key={stat.label} className="hero-stat" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .4 }} transition={{ duration: .55, ease: 'easeOut' }}><strong>{stat.value}</strong><span>{stat.label}</span></motion.div>)}
+            <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="#craft" onClick={scrollToCraft} className="button primary">View Projects <ArrowDownRight/></motion.a>
+            <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noreferrer" download="Karthikeya_Sriram_Resume.pdf" className="button secondary"><Download/> Download Resume</motion.a>
           </div>
         </div>
         <motion.div className="hero-profile-card" whileHover={{ y: -8, boxShadow: '0 32px 84px rgba(20,40,90,.24)' }} transition={{ type: 'spring', stiffness: 160, damping: 18 }}>
