@@ -142,7 +142,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
     </div>
     <div className="hero-inner">
       <motion.div className="hero-copy" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, ease: 'easeOut' }}>
-        <span className="eyebrow accent">Premium engineering for product teams</span>
+        <span className="eyebrow accent">BUILDING PRODUCTS. LEARNING EVERY DAY.</span>
         <h1>Karthikeya Sriram</h1>
         <p className="hero-tagline">Building software that solves real-world problems.</p>
         <div className="hero-status-card hero-status-left">
@@ -154,7 +154,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
       </motion.div>
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
         <div className="hero-left">
-          <p className="hero-intro">I’m Karthikeya Sriram. I build premium developer experiences, lead hackathon-focused engineering, and pursue product design that feels confident without being loud.</p>
+          <p className="hero-intro">I'm Karthikeya Sriram, a Computer Science student and Full Stack Developer who enjoys building products that solve real-world problems. From hackathons to full-stack applications, I love turning ideas into polished software while continuously learning modern technologies.</p>
           <div className="hero-cta">
             <motion.button whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} type="button" onClick={scrollToCraft} className="button primary">View Projects <ArrowDownRight/></motion.button>
             <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="button secondary"><ExternalLink/> View Resume</motion.a>
