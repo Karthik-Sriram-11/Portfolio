@@ -68,13 +68,36 @@ function LiveTime() {
   return <b>IST — {time || '—'}</b>
 }
 
+function useLocalStorageState<T>(key: string, defaultValue: T) {
+  const [state, setState] = useState<T>(() => {
+    if (typeof window === 'undefined') return defaultValue
+    try {
+      const stored = window.localStorage.getItem(key)
+      return stored ? JSON.parse(stored) : defaultValue
+    } catch {
+      return defaultValue
+    }
+  })
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.setItem(key, JSON.stringify(state))
+    } catch {
+      // ignore storage write errors
+    }
+  }, [key, state])
+
+  return [state, setState] as const
+}
+
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
   return null
 }
 
-function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
+function Home({ onOpenTerminal, easterUnlocked, easterMode }: { onOpenTerminal: () => void; easterUnlocked: boolean; easterMode: boolean }) {
   const [formState, setFormState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [formError, setFormError] = useState('')
   useEffect(() => { const lenis = new Lenis({ lerp: .15 }); let id: number; const tick = (t:number) => { lenis.raf(t); id=requestAnimationFrame(tick) }; id=requestAnimationFrame(tick); return () => { cancelAnimationFrame(id); lenis.destroy() } }, [])
@@ -87,7 +110,7 @@ function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
     try { const response = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }); const result = await response.json(); if (!result.success) throw new Error(result.message || 'Message failed to send.'); setFormState('sent'); form.reset() } catch (error) { setFormError(error instanceof Error ? error.message : 'Message failed to send.'); setFormState('error') }
   }
   return <>
-    <Hero onOpenTerminal={onOpenTerminal} />
+    <Hero onOpenTerminal={onOpenTerminal} easterUnlocked={easterUnlocked} easterMode={easterMode} />
     <main>
       <section id="journey" className="section journey"><motion.div {...reveal} className="eyebrow accent">THE PATH TAKEN</motion.div><motion.h2 {...reveal}>Journey</motion.h2><div className="journey-list">{[['2026 — PRESENT','B.Tech CSE • 3rd Year','Deep in the internship hunt. Shipping side projects and studying distributed systems, AI, and cloud-native architecture.'],['2025','Hackathons & Full-Stack Focus','Built production-minded projects under pressure, including a secure medical records platform and a competitive coding arena.'],['2025','Into the MERN Stack','Went from HTML/CSS tinkering to production-grade React, Node, Express, and MongoDB. First full-stack apps shipped.'],['2024','First Line of Code','Wrote my first program. Fell in love with the loop of thinking → building → shipping. Never looked back.']].map(([year,title,copy],i)=><motion.article {...reveal} className={`journey-entry ${i===0?'current':''}`} key={title}><span className="dot"></span><div><small>{year}</small><h3>{title}</h3><p>{copy}</p></div></motion.article>)}</div></section>
       <section id="experience" className="section experience">
@@ -118,7 +141,7 @@ function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   </>
 }
 
-function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
+function Hero({ onOpenTerminal, easterUnlocked, easterMode }: { onOpenTerminal: () => void; easterUnlocked: boolean; easterMode: boolean }) {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 90, damping: 20 })
   const [spotlight, setSpotlight] = useState({ x: '50%', y: '50%' })
@@ -151,6 +174,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           <div className="hero-status-row"><span>Availability</span><strong>Open for internships</strong></div>
         </div>
         <p className="hero-subline">I craft scalable web experiences, ship production-ready applications, and explore AI workflows while keeping design thoughtful and accessible.</p>
+        {easterUnlocked && <div className={"hero-secret-note" + (easterMode ? ' active' : '')}><Sparkles aria-hidden="true" />{easterMode ? 'Hidden mode engaged. Explore the secret commands in the terminal.' : 'Hidden mode unlocked. Type secret in the terminal.'}</div>}
       </motion.div>
       <motion.div className="hero-panel" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15, duration: .9, ease: 'easeOut' }}>
         <div className="hero-left">
@@ -180,7 +204,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   </header>
 }
 
-function TerminalOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
+function TerminalOverlay({ open, onClose, easterUnlocked, easterMode, setEasterMode, unlockSecret }: { open: boolean; onClose: () => void; easterUnlocked: boolean; easterMode: boolean; setEasterMode: React.Dispatch<React.SetStateAction<boolean>>; unlockSecret: () => void }) {
   const [history, setHistory] = useState<{ value: string; output: string[] }[]>([])
   const [input, setInput] = useState('')
   const [selected, setSelected] = useState(-1)
@@ -213,16 +237,34 @@ function TerminalOverlay({ open, onClose }: { open: boolean; onClose: () => void
       setInput('')
       return
     }
+
+    let output: string[]
     if (trimmed === 'sudo hire me') {
-      setHistory(prev => [...prev, { value: command, output: ['Permission granted.', 'Opening internship opportunities...'] }])
-      setInput('')
-      return
+      output = ['Permission granted.', 'Opening internship opportunities...']
+    } else if (trimmed === 'unlock' || trimmed === 'unlock secret') {
+      unlockSecret()
+      output = ['Secret system initialized.', 'Type secret to reveal hidden commands.']
+    } else if (trimmed === 'secret') {
+      output = easterUnlocked ? ['Hidden commands:', '• easter on', '• easter off', '• status', '• unlock'] : ['Command not found. Try help.']
+    } else if (trimmed === 'easter on' || trimmed === 'easter off') {
+      if (!easterUnlocked) {
+        output = ['Command not found. Try help.']
+      } else {
+        const enable = trimmed === 'easter on'
+        setEasterMode(enable)
+        output = enable ? ['Easter mode enabled.', 'Enjoy the secret visual layer.'] : ['Easter mode disabled.', 'Hidden mode is now quiet.']
+      }
+    } else if (trimmed === 'status') {
+      output = easterUnlocked ? [`Easter unlocked: yes`, `Hidden mode: ${easterMode ? 'enabled' : 'disabled'}`, 'Type secret for hidden commands.'] : ['Command not found. Try help.']
+    } else {
+      output = commandOutput[trimmed]?.() ?? ['Command not found. Try help.']
     }
+
     if (trimmed === 'matrix') {
       setMatrixMode(true)
     }
-    const handler = commandOutput[trimmed] ?? (() => ['Command not found. Try help.'])
-    setHistory(prev => [...prev, { value: command, output: handler() }])
+
+    setHistory(prev => [...prev, { value: command, output }])
     setInput('')
   }
 
@@ -276,6 +318,24 @@ export default function App() {
   const location = useLocation()
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [konamiActive, setKonamiActive] = useState(false)
+  const [easterUnlocked, setEasterUnlocked] = useLocalStorageState('portfolio.easterUnlocked', false)
+  const [easterMode, setEasterMode] = useLocalStorageState('portfolio.easterMode', false)
+  const [toast, setToast] = useState<string | null>(null)
+
+  const unlockSecret = () => {
+    if (!easterUnlocked) {
+      setEasterUnlocked(true)
+      setToast('Secret unlocked! Type secret in the terminal.')
+      return
+    }
+    setToast('Secret mode is already unlocked.')
+  }
+
+  useEffect(() => {
+    if (!toast) return
+    const timeout = window.setTimeout(() => setToast(null), 4200)
+    return () => window.clearTimeout(timeout)
+  }, [toast])
 
   useEffect(() => {
     const sequence = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']
@@ -289,6 +349,7 @@ export default function App() {
         position += 1
         if (position === sequence.length) {
           setKonamiActive(true)
+          unlockSecret()
           position = 0
         }
       } else {
@@ -297,7 +358,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [])
+  }, [easterUnlocked])
 
   useEffect(() => {
     if (!konamiActive) return
@@ -319,15 +380,17 @@ export default function App() {
   }, [])
 
   return <>
+    {easterMode && <div className="hidden-mode-layer" aria-hidden="true" />}
     {konamiActive && <div className="confetti-layer" aria-hidden="true" />}
+    {toast && <div className="easter-toast" role="status" aria-live="polite">{toast}</div>}
     <ScrollToTop />
     <Nav />
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home onOpenTerminal={() => setTerminalOpen(true)} />} />
+        <Route path="/" element={<Home onOpenTerminal={() => setTerminalOpen(true)} easterUnlocked={easterUnlocked} easterMode={easterMode} />} />
         <Route path="/work/:slug" element={<CaseStudy />} />
       </Routes>
     </AnimatePresence>
-    <TerminalOverlay open={terminalOpen} onClose={() => setTerminalOpen(false)} />
+    <TerminalOverlay open={terminalOpen} onClose={() => setTerminalOpen(false)} easterUnlocked={easterUnlocked} easterMode={easterMode} setEasterMode={setEasterMode} unlockSecret={unlockSecret} />
   </>
 }
