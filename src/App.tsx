@@ -152,7 +152,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           <p className="hero-intro">I’m Karthikeya Sriram. I build premium developer experiences, lead hackathon-focused engineering, and pursue product design that feels confident without being loud.</p>
           <div className="hero-cta">
             <motion.button whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} type="button" onClick={scrollToCraft} className="button primary">View Projects <ArrowDownRight/></motion.button>
-            <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noreferrer" download="Karthikeya_Sriram_Resume.pdf" className="button secondary"><Download/> Download Resume</motion.a>
+            <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="button secondary"><ExternalLink/> View Resume</motion.a>
           </div>
         </div>
         <motion.div className="hero-profile-card" whileHover={{ y: -8, boxShadow: '0 32px 84px rgba(20,40,90,.24)' }} transition={{ type: 'spring', stiffness: 160, damping: 18 }}>
