@@ -176,11 +176,17 @@ function TerminalOverlay({ open, onClose }: { open: boolean; onClose: () => void
   const [selected, setSelected] = useState(-1)
   const [matrixMode, setMatrixMode] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const terminalLogRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) return
     window.setTimeout(() => inputRef.current?.focus(), 120)
   }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    terminalLogRef.current?.scrollTo({ top: terminalLogRef.current.scrollHeight, behavior: 'smooth' })
+  }, [history, open])
 
   useEffect(() => {
     if (!matrixMode) return
@@ -238,7 +244,7 @@ function TerminalOverlay({ open, onClose }: { open: boolean; onClose: () => void
       <div className="terminal-header"><div className="terminal-circles"><span/><span/><span/></div><button className="terminal-close" onClick={onClose} aria-label="Close terminal">⨯</button></div>
       <div className="terminal-body">
         {matrixMode && <div className="matrix-mask" aria-hidden="true" />}
-        <div className="terminal-log">
+        <div className="terminal-log" ref={terminalLogRef}>
           <div className="terminal-welcome">Welcome to the hidden terminal. Type <span>help</span> to get started.</div>
           {history.map((entry, index) => <div key={`${entry.value}-${index}`} className="terminal-entry"><div className="terminal-command">&gt; {entry.value}</div>{entry.output.map((line, lineIndex) => <div key={lineIndex} className="terminal-response">{line}</div>)}</div>)}
         </div>
