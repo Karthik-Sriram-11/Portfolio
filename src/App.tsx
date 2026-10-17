@@ -1,11 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
 import Lenis from 'lenis'
 import { ArrowDownRight, ArrowUpRight, Download, ExternalLink, Github, Linkedin, Mail, MapPin, Menu, MoveRight, Sparkles, X } from 'lucide-react'
 import { projects, skills } from './data'
+import { CursorGlow, SplitText, prefersReducedMotion, useTilt } from './effects'
 
-const reveal = { initial: { opacity: 0, y: 22 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-70px' }, transition: { duration: .65 } }
+const Scene3D = lazy(() => import('./Scene3D'))
+
+const reveal = { initial: { opacity: 0, y: 34, rotateX: 7 }, whileInView: { opacity: 1, y: 0, rotateX: 0 }, viewport: { once: true, margin: '-70px' }, transition: { duration: .8, ease: [0.22, 1, 0.36, 1] as const } }
 const heroPhrases = ['Full Stack Developer', 'MERN Developer', 'AI Enthusiast', 'Problem Solver', 'Hackathon Builder']
 const heroStats = [
   { value: '8+', label: 'Projects Built' },
@@ -36,7 +39,7 @@ const commandOutput: Record<string, () => string[]> = {
   linkedin: () => ['https://linkedin.com/in/karthiksriram11'],
   resume: () => ['Resume available at /resume.pdf'],
   contact: () => ['karthiksriram.dev@gmail.com'],
-  experience: () => ['Assistant Manager – Accounting & Assets', 'Advanced Academic Centre (AAC), GRIET', 'Strategic finance and event coordination'],
+  experience: () => ['Software Engineering Intern — RHYM Technologies LLP (Jul–Aug 2026)', 'Built the CAP cybersecurity compliance platform with React, Node, MongoDB, AWS', 'Coordinator – Accounting & Assets', 'Advanced Academic Centre (AAC), GRIET', 'Strategic finance and event coordination'],
   education: () => ['B.Tech CSE — 3rd Year', 'Passionate about software engineering and product design'],
   currently: () => ['Building MeshLine', 'Learning Docker', 'Exploring AWS', 'Looking for Full Stack Internship'],
   sudo: () => ['Permission denied: only an admin can run this command.'],
@@ -89,15 +92,28 @@ function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   return <>
     <Hero onOpenTerminal={onOpenTerminal} />
     <main>
-      <section id="journey" className="section journey"><motion.div {...reveal} className="eyebrow accent">THE PATH TAKEN</motion.div><motion.h2 {...reveal}>Journey</motion.h2><div className="journey-list">{[['2026 — PRESENT','B.Tech CSE • 3rd Year','Deep in the internship hunt. Shipping side projects and studying distributed systems, AI, and cloud-native architecture.'],['2025','Hackathons & Full-Stack Focus','Built production-minded projects under pressure, including a secure medical records platform and a competitive coding arena.'],['2025','Into the MERN Stack','Went from HTML/CSS tinkering to production-grade React, Node, Express, and MongoDB. First full-stack apps shipped.'],['2024','First Line of Code','Wrote my first program. Fell in love with the loop of thinking → building → shipping. Never looked back.']].map(([year,title,copy],i)=><motion.article {...reveal} className={`journey-entry ${i===0?'current':''}`} key={title}><span className="dot"></span><div><small>{year}</small><h3>{title}</h3><p>{copy}</p></div></motion.article>)}</div></section>
+      <section id="journey" className="section journey"><motion.div {...reveal} className="eyebrow accent">THE PATH TAKEN</motion.div><motion.h2 {...reveal}>Journey</motion.h2><div className="journey-list">{[['2026 — PRESENT','B.Tech CSE • 3rd Year','Shipping side projects and studying distributed systems, AI, and cloud-native architecture.'],['2025','Hackathons & Full-Stack Focus','Built production-minded projects under pressure, including a secure medical records platform and a competitive coding arena.'],['2025','Into the MERN Stack','Went from HTML/CSS tinkering to production-grade React, Node, Express, and MongoDB. First full-stack apps shipped.'],['2024','First Line of Code','Wrote my first program. Fell in love with the loop of thinking → building → shipping. Never looked back.']].map(([year,title,copy],i)=><motion.article {...reveal} className={`journey-entry ${i===0?'current':''}`} key={title}><span className="dot"></span><div><small>{year}</small><h3>{title}</h3><p>{copy}</p></div></motion.article>)}</div></section>
       <section id="experience" className="section experience">
         <motion.div {...reveal} className="eyebrow accent">WORK HISTORY</motion.div>
         <motion.h2 {...reveal}>Experience</motion.h2>
         <div style={{ marginTop: '60px' }}>
           <motion.div {...reveal} className="experience-row">
+            <span>JUL 2026 — AUG 2026</span>
+            <div>
+              <h2>Software Engineering Intern</h2>
+              <p style={{ marginTop: '6px', color: 'var(--blue)', font: '500 11px \'DM Mono\'', letterSpacing: '.13em', textTransform: 'uppercase' }}>Cybersecurity Compliance</p>
+              <p style={{ color: 'var(--muted)', fontSize: '13px', marginTop: '6px' }}>RHYM Technologies LLP · Hyderabad</p>
+            </div>
+            <div>
+              <p>Developed and maintained the CAP cybersecurity compliance platform using React.js, Node.js, MongoDB, and AWS, while fixing defects identified through system testing.</p>
+              <p style={{ marginTop: '12px' }}>Implemented audit-trail functionality, session persistence across page navigation, and assessment-level approval/rejection summaries for compliance workflows.</p>
+              <p style={{ marginTop: '12px' }}>Enhanced platform UI and usability across key workflows to improve the overall user experience.</p>
+            </div>
+          </motion.div>
+          <motion.div {...reveal} className="experience-row">
             <span>AUG 2025 — PRESENT</span>
             <div>
-              <h2>Assistant Manager</h2>
+              <h2>Coordinator</h2>
               <p style={{ marginTop: '6px', color: 'var(--blue)', font: '500 11px \'DM Mono\'', letterSpacing: '.13em', textTransform: 'uppercase' }}>Accounting & Assets</p>
               <p style={{ color: 'var(--muted)', fontSize: '13px', marginTop: '6px' }}>Advanced Academic Centre (AAC), GRIET · Hyderabad</p>
             </div>
@@ -109,8 +125,8 @@ function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           </motion.div>
         </div>
       </section>
-      <section id="craft" className="section craft"><motion.div {...reveal} className="eyebrow accent">SELECTED WORKS</motion.div><motion.div className="craft-title" {...reveal}><h2>Craft</h2><span>0{projects.length} PROJECTS</span></motion.div><div className="project-stack">{projects.map((p, i) => <motion.article {...reveal} className={`project project-${p.color} ${i % 2 ? 'reverse' : ''}`} key={p.slug}><div className="project-copy"><div className="project-label"><b>0{i+1} — PROJECT</b><span>{p.type}</span></div><h3>{p.name}</h3><p>{p.description}</p><div className="tags">{p.stack.map(s=><span key={s}>{s}</span>)}</div><div className="project-links"><a href={p.github} target="_blank" rel="noreferrer"><Github/> CODE</a><Link to={`/work/${p.slug}`}>CASE STUDY <ArrowDownRight/></Link></div></div><div className="project-poster"><div className="poster-card"><small>{p.name.toUpperCase()}</small><strong>{p.statement}</strong></div></div></motion.article>)}</div></section>
-      <section id="stack" className="section arsenal"><motion.div {...reveal} className="eyebrow">03 / TECH ARSENAL</motion.div><motion.h2 {...reveal}>The tools are<br/><i>only the beginning.</i></motion.h2><div className="skill-grid">{Object.entries(skills).map(([group, list])=><motion.div {...reveal} className="skill-block" key={group}><h3>{group}</h3>{list.map(x=><span key={x}>{x}<b>↗</b></span>)}</motion.div>)}</div></section>
+      <section id="craft" className="section craft"><motion.div {...reveal} className="eyebrow accent">SELECTED WORKS</motion.div><motion.div className="craft-title" {...reveal}><h2>Craft</h2><span>0{projects.length} PROJECTS</span></motion.div><div className="project-stack">{projects.map((p, i) => <ProjectCard project={p} index={i} key={p.slug} />)}</div></section>
+      <section id="stack" className="section arsenal"><motion.div {...reveal} className="eyebrow">03 / TECH ARSENAL</motion.div><motion.h2 {...reveal}>The tools are<br/><i>only the beginning.</i></motion.h2><div className="skill-grid">{Object.entries(skills).map(([group, list])=><SkillBlock group={group} list={list} key={group} />)}</div></section>
       <section id="arena" className="section experience"><motion.div {...reveal} className="eyebrow accent">IN THE ARENA</motion.div><motion.div {...reveal} className="achievement-bar"><span>HACKWITHAI</span><p>Top 50 of ~1,000 teams at Telangana’s largest 24-hour offline AI hackathon.</p><span>HACK WITH HYDERABAD</span><p>Top 1,000 of 3,000 teams at Microsoft Hyderabad.</p></motion.div></section>
       <section className="section playground"><motion.div {...reveal} className="eyebrow">05 / PLAYGROUND</motion.div><motion.div {...reveal} className="play-card"><div><span className="status"><i/> LIVE EXPERIMENT</span><h2>Type faster.<br/>Think <i>sharper.</i></h2><p>A tiny typing laboratory built for focus.</p><button onClick={() => alert('Playground modules are ready for expansion.')}>Launch experiment <MoveRight/></button></div><div className="typing"><span>64</span><small>WPM</small><div className="progress"><i></i></div><p>“Great software is the art of making complexity feel invisible.”</p></div></motion.div></section>
       <section id="connect" className="section contact"><motion.div {...reveal} className="contact-shell"><div><div className="eyebrow accent">CONNECT</div><h2>Let’s build something<br/><i>impactful</i> together.</h2><p>Open for internships, hackathons, freelance, and thoughtful collaborations. Reach out — I reply fast.</p><div className="contact-actions"><a href="mailto:karthiksriram.dev@gmail.com" target="_blank" rel="noreferrer"><Mail/> EMAIL</a><a href="https://github.com/Karthik-Sriram-11" target="_blank" rel="noreferrer"><Github/> GITHUB</a><a href="https://linkedin.com/in/karthiksriram11" target="_blank" rel="noreferrer"><Linkedin/> LINKEDIN</a></div><p className="location"><MapPin/> Hyderabad, Telangana, India</p></div><form onSubmit={sendMessage}>{formState === 'sent' ? <div className="sent"><Sparkles/> Message received. I’ll be in touch.</div> : <><input required name="name" placeholder="Your name"/><input required name="email" type="email" placeholder="Email address"/><input className="honeypot" name="botcheck" tabIndex={-1} autoComplete="off"/><textarea required name="message" placeholder="Tell me a little about it" rows={4}/><button disabled={formState === 'sending'}>{formState === 'sending' ? 'Sending…' : <>Send a note <ArrowUpRight/></>}</button>{formState === 'error' && <p className="form-error">{formError}</p>}</>}</form></motion.div></section>
@@ -118,10 +134,35 @@ function Home({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   </>
 }
 
+function ProjectCard({ project, index }: { project: typeof projects[number]; index: number }) {
+  const tilt = useTilt<HTMLElement>(7)
+  return <motion.article {...reveal} ref={tilt.ref} onMouseMove={tilt.onMouseMove} onMouseLeave={tilt.onMouseLeave} className={`project tilt project-${project.color} ${index % 2 ? 'reverse' : ''}`}>
+    <span className="tilt-sheen" aria-hidden="true" />
+    <div className="project-copy depth-1">
+      <div className="project-label"><b>0{index + 1} — PROJECT</b><span>{project.type}</span></div>
+      <h3>{project.name}</h3>
+      <p>{project.description}</p>
+      <div className="tags">{project.stack.map(s => <span key={s}>{s}</span>)}</div>
+      <div className="project-links"><a href={project.github} target="_blank" rel="noreferrer"><Github/> CODE</a><Link to={`/work/${project.slug}`}>CASE STUDY <ArrowDownRight/></Link></div>
+    </div>
+    <div className="project-poster"><div className="poster-card depth-3"><small>{project.name.toUpperCase()}</small><strong>{project.statement}</strong></div></div>
+  </motion.article>
+}
+
+function SkillBlock({ group, list }: { group: string; list: string[] }) {
+  const tilt = useTilt<HTMLDivElement>(10)
+  return <motion.div {...reveal} ref={tilt.ref} onMouseMove={tilt.onMouseMove} onMouseLeave={tilt.onMouseLeave} className="skill-block tilt">
+    <span className="tilt-sheen" aria-hidden="true" />
+    <h3 className="depth-1">{group}</h3>
+    {list.map(x => <span className="depth-1" key={x}>{x}<b>↗</b></span>)}
+  </motion.div>
+}
+
 function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 90, damping: 20 })
   const [spotlight, setSpotlight] = useState({ x: '50%', y: '50%' })
+  const profileTilt = useTilt<HTMLDivElement>(11)
 
   const scrollToCraft = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -139,11 +180,12 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
       <div className="hero-blob blob-2" />
       <div className="hero-spotlight" style={{ left: spotlight.x, top: spotlight.y }} />
       <div className="hero-grid-lines" />
+      {!prefersReducedMotion() && <Suspense fallback={null}><Scene3D /></Suspense>}
     </div>
     <div className="hero-inner">
       <motion.div className="hero-copy" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, ease: 'easeOut' }}>
         <span className="eyebrow accent">BUILDING PRODUCTS. LEARNING EVERY DAY.</span>
-        <h1>Karthikeya Sriram</h1>
+        <h1><SplitText text="Karthikeya Sriram" /></h1>
         <p className="hero-tagline">Building software that solves real-world problems.</p>
         <div className="hero-status-card hero-status-left">
           <div className="hero-status-row"><span>Live</span><LiveTime/></div>
@@ -160,11 +202,12 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             <motion.a whileHover={{ y: -2, scale: 1.01 }} whileTap={{ scale: .98 }} href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="button secondary"><ExternalLink/> View Resume</motion.a>
           </div>
         </div>
-        <motion.div className="hero-profile-card" whileHover={{ y: -8, boxShadow: '0 32px 84px rgba(20,40,90,.24)' }} transition={{ type: 'spring', stiffness: 160, damping: 18 }}>
-          <div className="profile-border">
+        <div className="hero-profile-card tilt" ref={profileTilt.ref} onMouseMove={profileTilt.onMouseMove} onMouseLeave={profileTilt.onMouseLeave}>
+          <span className="tilt-sheen" aria-hidden="true" />
+          <div className="profile-border depth-2">
             <img className="profile-photo" src="/profile.jpeg" alt="Karthikeya Sriram" onDoubleClick={onOpenTerminal} />
           </div>
-          <div className="profile-details">
+          <div className="profile-details depth-1">
             <span className="status-pill">B.Tech CSE • Year 3</span>
             <div className="hero-status-card hero-status-mobile">
               <div className="hero-status-row"><span>Live</span><LiveTime/></div>
@@ -173,7 +216,7 @@ function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             </div>
             <p>Open for internships and product-focused roles. Double-click my photo to unlock a hidden terminal.</p>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
       <div className="hero-meta"><span>SCROLL ↓</span><span>2026 / PORTFOLIO</span></div>
     </div>
@@ -320,6 +363,8 @@ export default function App() {
 
   return <>
     {konamiActive && <div className="confetti-layer" aria-hidden="true" />}
+    <div className="grain" aria-hidden="true" />
+    <CursorGlow />
     <ScrollToTop />
     <Nav />
     <AnimatePresence mode="wait">
