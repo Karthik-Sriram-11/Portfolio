@@ -7,8 +7,9 @@ export const projects = [
 ]
 
 export const skills = {
-  'Languages': ['Java', 'JavaScript', 'TypeScript', 'Python', 'C++'],
-  'Frontend': ['React', 'Vite', 'HTML', 'CSS'],
-  'Backend': ['Node.js', 'Express', 'REST APIs', 'Auth / JWT'],
-  'Data & tools': ['MongoDB', 'MySQL', 'Git', 'Docker', 'Figma', 'Postman']
+  'Languages': ['Java', 'C', 'C++', 'Python', 'JavaScript', 'TypeScript', 'SQL'],
+  'Frontend': ['React', 'Vite', 'HTML', 'CSS', 'Leaflet.js'],
+  'Backend': ['Node.js', 'Express', 'FastAPI', 'REST APIs', 'Auth / JWT'],
+  'AI & Data': ['LangGraph', 'Gemini API', 'Groq', 'OCR', 'NumPy', 'GeoPandas', 'Shapely', 'xarray'],
+  'Databases & Tools': ['MongoDB', 'MySQL', 'SQLite', 'IndexedDB', 'Git', 'GitHub', 'Docker', 'Postman', 'Figma', 'VS Code']
 }
